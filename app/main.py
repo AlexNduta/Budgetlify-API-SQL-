@@ -65,17 +65,17 @@ def post_expense(new_expense: schemas.PostCreate):
         cursor.execute("""INSERT INTO expenses(category, amount, Description) VALUES(%s, %s, %s) RETURNING *""", (new_expense.category, new_expense.amount, new_expense.description))
         new_expense_posted = cursor.fetchone() # get the values posted in the SQL statement above
         conn.commit() # save the data to the database
-        # 
+
+        # Create a response object that will return the items we want 
+        # we ue this because we are not using ORM
         response = schemas.PostResponse(
             category= new_expense_posted['category'],
             amount=new_expense_posted['amount'],
             description= new_expense_posted['description']
         )
-        return response.model_dump()
+        return response.dict()
     except Exception as e:
         raise HTTPException(status_code=500, detail="An error occured : {}".format(e))
-
-
 
 
 @app.get("/Budgetlify/expenses/{id}")
@@ -101,6 +101,7 @@ def index_finder(id:int):
         if element['id'] == id:
             return index
 
+
 @app.delete("/Budgetlify/expenses/{id}")
 def delete_a_single_item(id:int):
     """
@@ -116,6 +117,7 @@ def delete_a_single_item(id:int):
         raise HTTPException(status_code=404, detail="Expense with ID {} not found".format(id))
 
     return {"message":"Item deleted successfully"}
+
 
 @app.put("/Budgetlify/expenses/{id}")
 def update_expense(id:int, post: schemas.PostCreate):
