@@ -13,7 +13,6 @@ import schemas
 from typing import Any
 app = FastAPI()
 
-filename = 'storage.txt'
 
 # as long as we are not able to connect to the DB, loop endlesly
 while True:
@@ -133,4 +132,26 @@ def update_expense(id:int, post: schemas.PostCreate):
 
     else:
         raise HTTPException(status_code=404, detail="expense with ID: {} does not exist")
+
+@app.post("/Budgetlify/users", status_code=status.HTTP_201_CREATED)
+def create_user(new_user: schemas.CreateUser):
+    """ used to create users to out table of users
+
+    - Our new user willl have a name, email and password
+    """ 
+    try:
+        # we will use the cursor object to execute our SQL code
+        cursor.execute("""INSERT INTO users(name, email, password) VALUES(%s, %s, %s) RETURNING *""", (new_user.name, new_user.email, new_user.password))
+        new_user = cursor.fetchone() # get the values we just posted
+        conn.commit()# save our values to the database
+        # specify what to return  to the user, make sure that we do not return the password
+        response = schemas.UserResponse(
+                name = new_user['name'],
+                email = new_user['email']
+        )
+        return response.dict()
+        #return new_user
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="An error occured : {}".format(e))
+
 

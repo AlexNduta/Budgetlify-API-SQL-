@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 """ This is the module used to validate the user input
 """
@@ -20,3 +20,14 @@ class PostResponse(PostBase):
     """ specify the fields we want in our response """
     amount:int
     description: str
+
+class CreateUser(BaseModel):
+    """ Used to create a user with the fields we want"""
+    name:str
+    email:EmailStr
+    password:str
+
+class UserResponse(BaseModel):
+    """ Specify that we will only return the user's name and email and exclude the password"""
+    name:str
+    email:str
