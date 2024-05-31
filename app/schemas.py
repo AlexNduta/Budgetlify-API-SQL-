@@ -22,12 +22,10 @@ class PostResponse(PostBase):
     description: str
 
 class CreateUser(BaseModel):
-    """ Used to create a user with the fields we want"""
     name:str
     email:EmailStr
     password:str
 
 class UserResponse(BaseModel):
-    """ Specify that we will only return the user's name and email and exclude the password"""
     name:str
     email:str

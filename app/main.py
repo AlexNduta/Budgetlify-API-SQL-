@@ -11,6 +11,8 @@ from psycopg2.extras import RealDictCursor # for giving columnname and value
 #from schemas import Post 
 import schemas
 from typing import Any
+import utils
+
 app = FastAPI()
 
 
@@ -138,20 +140,32 @@ def create_user(new_user: schemas.CreateUser):
     """ used to create users to out table of users
 
     - Our new user willl have a name, email and password
-    """ 
+    """
+    # hash the password - new_user.password
+    hashed_password = utils.hash(new_user.password)
     try:
         # we will use the cursor object to execute our SQL code
-        cursor.execute("""INSERT INTO users(name, email, password) VALUES(%s, %s, %s) RETURNING *""", (new_user.name, new_user.email, new_user.password))
+        cursor.execute("""INSERT INTO users(name, email, password) VALUES(%s, %s, %s) RETURNING *""", (new_user.name, new_user.email, hashed_password))
         new_user = cursor.fetchone() # get the values we just posted
         conn.commit()# save our values to the database
         # specify what to return  to the user, make sure that we do not return the password
         response = schemas.UserResponse(
                 name = new_user['name'],
-                email = new_user['email']
+                email = new_user['email'],
         )
         return response.dict()
         #return new_user
     except Exception as e:
         raise HTTPException(status_code=500, detail="An error occured : {}".format(e))
 
-
+@app.get("Budgetlify/users")
+def get_user():
+    #cursor.execute("""SELECT * FROM users WHERE id = %s """, (str(id),)) 
+    cursor.execute("""SELECT * FROM users""") 
+    fetched_user = cursor.fetchall()
+    return fetched_user
+"""
+    if fetched_user:
+        return fetched_user
+    else:
+        raise HTTPException(status_code=404, detail="The user  with the ID {} is not found".format(id)) """
