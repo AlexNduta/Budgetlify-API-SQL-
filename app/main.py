@@ -42,7 +42,7 @@ while True:
 
 @app.get("/Budgetlify/expenses")
 def get_expenses():
-    """ get a list of all our expenses saved somewhere in the file/DB"""
+    """ get a list of all our expenses saved somewhere in the DB"""
    # expenses = expense_file_reader(filename)
    # execute SQL statements in our code
     cursor.execute("""SELECT * FROM Expenses""")
@@ -139,7 +139,9 @@ def update_expense(id:int, post: schemas.PostCreate):
 def create_user(new_user: schemas.CreateUser):
     """ used to create users to out table of users
 
-    - Our new user willl have a name, email and password
+    - Our new user will have a name, email and password
+    - The data returned to confirm that the user has been created should not contain the password
+    - The user password of the user should be stored in the database in the encrypted format
     """
     # hash the password - new_user.password
     hashed_password = utils.hash(new_user.password)
@@ -164,8 +166,8 @@ def get_user():
     cursor.execute("""SELECT * FROM users""") 
     fetched_user = cursor.fetchall()
     return fetched_user
-"""
+
     if fetched_user:
         return fetched_user
     else:
-        raise HTTPException(status_code=404, detail="The user  with the ID {} is not found".format(id)) """
+        raise HTTPException(status_code=404, detail="The user  with the ID {} is not found".format(id))
